@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,6 +18,11 @@ import java.util.stream.Collectors;
  * args[1] : 카운트 할 컬럼명
  * <p>
  * 아래 코드를 리팩토링 해보시오
+ * <p>
+ * <p>
+ * 참고 사이트
+ * https://recordsoflife.tistory.com/55
+ * https://cornswrold.tistory.com/547
  */
 public class DirtyCodeMain {
     private static final int CSV_ARG_LENGTH_LIMIT = 2;
@@ -38,16 +42,16 @@ public class DirtyCodeMain {
              BufferedReader bufferedReader = new BufferedReader(streamReader);
              CSVReader csvReader = new CSVReader(bufferedReader)) {
 
-            Map<String, List<String>> result = getGroupingByColumnName(csvReader, columnName);
+            Map<String, Integer> result = getGroupingCountByColumnName(csvReader, columnName);
             for (String column : result.keySet()) {
-                System.out.println(column + " : " + result.get(column).size());
+                System.out.println(column + " : " + result.get(column));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static Map<String, List<String>> getGroupingByColumnName(CSVReader csvReader, String columnName) throws IOException {
+    private static Map<String, Integer> getGroupingCountByColumnName(CSVReader csvReader, String columnName) throws IOException {
         String[] header = csvReader.readNext();
         if (header == null || header.length == 0) {
             throw new IllegalArgumentException("First line must be columns. Column can not found.");
@@ -61,6 +65,6 @@ public class DirtyCodeMain {
         return csvReader.readAll().stream()
                 .filter(data -> data.length == header.length)
                 .map(data -> data[columnIndex])
-                .collect(Collectors.groupingBy(column -> column));
+                .collect(Collectors.groupingBy(column -> column, Collectors.summingInt(value -> 1)));
     }
 }
