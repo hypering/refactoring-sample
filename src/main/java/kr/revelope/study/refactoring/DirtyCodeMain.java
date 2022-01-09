@@ -1,12 +1,11 @@
 package kr.revelope.study.refactoring;
 
+import kr.revelope.study.refactoring.detectors.CharacterSetDetector;
 import kr.revelope.study.refactoring.files.CSVFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +29,8 @@ import java.util.stream.Collectors;
  * 참고 사이트
  * https://recordsoflife.tistory.com/55
  * https://cornswrold.tistory.com/547
+ * <p>
+ * https://www.tabnine.com/code/java/methods/com.ibm.icu.text.CharsetDetector/detect
  */
 public class DirtyCodeMain {
     private static final int CSV_ARG_LENGTH_LIMIT = 2;
@@ -42,11 +43,19 @@ public class DirtyCodeMain {
         String fileName = args[0];
         String columnName = args[1];
 
-        InputStream inputStream = Optional.ofNullable(DirtyCodeMain.class.getClassLoader().getResourceAsStream(fileName))
-                .orElseThrow(() -> new IllegalArgumentException(String.format("%s file can not found.", fileName)));
+        if (!existsFile(fileName)) {
+            throw new IllegalArgumentException(String.format("%s file can not found.", fileName));
+        }
+
+        Charset charset = Optional.ofNullable(getFileCharacterSet(fileName))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Can not found %s file target Charset", fileName)));
 
         Map<String, Integer> result;
-        try (InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        /*
+         * null이 올 수가 있나..?
+         * */
+        try (InputStream inputStream = DirtyCodeMain.class.getClassLoader().getResourceAsStream(fileName);
+             InputStreamReader streamReader = new InputStreamReader(inputStream, charset);
              BufferedReader bufferedReader = new BufferedReader(streamReader)) {
             CSVFile csvFile = new CSVFile(bufferedReader);
 
@@ -59,6 +68,25 @@ public class DirtyCodeMain {
 
         for (String column : result.keySet()) {
             System.out.println(column + " : " + result.get(column));
+        }
+    }
+
+    private static boolean existsFile(String fileName) {
+        URL url = DirtyCodeMain.class.getClassLoader().getResource(fileName);
+        if (url == null) {
+            return false;
+        }
+
+        File file = new File(url.getFile());
+
+        return file.exists();
+    }
+
+    private static Charset getFileCharacterSet(String fileName) {
+        try (InputStream inputStream = DirtyCodeMain.class.getClassLoader().getResourceAsStream(fileName)) {
+            return CharacterSetDetector.getCharacterSet(inputStream);
+        } catch (IOException ioException) {
+            return null;
         }
     }
 
