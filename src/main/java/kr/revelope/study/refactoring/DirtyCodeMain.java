@@ -2,6 +2,8 @@ package kr.revelope.study.refactoring;
 
 import kr.revelope.study.refactoring.detectors.CharacterSetDetector;
 import kr.revelope.study.refactoring.files.CSVFile;
+import kr.revelope.study.refactoring.parsers.ProgramArgumentParser;
+import kr.revelope.study.refactoring.types.ArgumentType;
 
 import java.io.*;
 import java.net.URL;
@@ -12,36 +14,47 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * csv 파일을 읽어서 특정 컬럼명을 group by 하여 출력하는 프로그램이다.
+ * <p>
+ * TODO : csv 파일을 읽어서 특정 컬럼명을 group by 하여 출력하는 프로그램이다.
  * args[0] : resources에 보관된 csv 파일명
  * args[1] : 카운트 할 컬럼명
- * <p>
- * // todo 1. arguments 받는 방식을 바꿔주세요.
- * // --file-path {filePath} 또는 -f {filePath}
- * // --column-name {columnName} 또는 -c {columnName}
- * <p>
- * // todo 2. charset이 ms949인 것도 들어올 수 있게 하기
  *
  * <p>
- * 아래 코드를 리팩토링 해보시오
+ * TODO : arguments 받는 방식을 바꿔주세요.
+ * --file-path {filePath} 또는 -f {filePath}
+ * --column-name {columnName} 또는 -c {columnName}
+ *
  * <p>
+ * TODO : charset이 ms949인 것도 들어올 수 있게 하기
+ *
  * <p>
- * 참고 사이트
+ * - 참고자료 -
+ *
+ * <p>
+ * * java stream
  * https://recordsoflife.tistory.com/55
  * https://cornswrold.tistory.com/547
+ *
  * <p>
+ * * CharsetDectector
  * https://www.tabnine.com/code/java/methods/com.ibm.icu.text.CharsetDetector/detect
+ *
+ * <p>
+ * * commons-cli
+ * https://junho85.pe.kr/432
+ * https://118k.tistory.com/779
+ * https://stackoverflow.com/questions/367706/how-do-i-parse-command-line-arguments-in-java
  */
 public class DirtyCodeMain {
-    private static final int CSV_ARG_LENGTH_LIMIT = 2;
-
     public static void main(String[] args) {
-        if (args == null || args.length < CSV_ARG_LENGTH_LIMIT) {
+        ProgramArgumentParser argumentParser = new ProgramArgumentParser(args);
+
+        String fileName = argumentParser.getArgumentValue(ArgumentType.FILE_NAME.getOptionName());
+        String columnName = argumentParser.getArgumentValue(ArgumentType.COLUMN_NAME.getOptionName());
+
+        if (fileName == null || columnName == null) {
             throw new IllegalArgumentException("File name and target column name is required.");
         }
-
-        String fileName = args[0];
-        String columnName = args[1];
 
         if (!existsFile(fileName)) {
             throw new IllegalArgumentException(String.format("%s file can not found.", fileName));
@@ -51,9 +64,6 @@ public class DirtyCodeMain {
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Can not found %s file target Charset", fileName)));
 
         Map<String, Integer> result;
-        /*
-         * null이 올 수가 있나..?
-         * */
         try (InputStream inputStream = DirtyCodeMain.class.getClassLoader().getResourceAsStream(fileName);
              InputStreamReader streamReader = new InputStreamReader(inputStream, charset);
              BufferedReader bufferedReader = new BufferedReader(streamReader)) {
