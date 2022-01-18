@@ -9,9 +9,14 @@ public class ProgramArgumentParser {
 
     static {
         for (ArgumentType argumentType : ArgumentType.values()) {
+            if (!argumentType.isUse()) {
+                continue;
+            }
+
             Option option = Option.builder()
                     .option(argumentType.getOptionName())
                     .longOpt(argumentType.getLongOptionName())
+                    .required()
                     .hasArg()
                     .desc(argumentType.getDescription())
                     .build();

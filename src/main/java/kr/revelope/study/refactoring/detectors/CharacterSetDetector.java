@@ -9,17 +9,20 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 public class CharacterSetDetector {
-    private static final CharsetDetector charsetDetector = new CharsetDetector();
+    private CharacterSetDetector() {
+    }
 
-    public static Charset getCharacterSet(InputStream inputStream) {
+    public static Charset getCharacterSet(InputStream inputStream) throws IOException {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream)) {
+            CharsetDetector charsetDetector = new CharsetDetector();
             charsetDetector.setText(bufferedInputStream);
 
             CharsetMatch charsetMatch = charsetDetector.detect();
+            if (charsetMatch == null) {
+                return null;
+            }
 
             return Charset.forName(charsetMatch.getName());
-        } catch (IOException ioException) {
-            return null;
         }
     }
 }
