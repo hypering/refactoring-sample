@@ -21,7 +21,7 @@ public class DirtyCodeMain {
         ProgramArgumentParser argumentParser = new ProgramArgumentParser(args);
 
         final String fileName = argumentParser.getArgumentValue(ArgumentType.FILE_NAME.getOptionName());
-        final String columnName = argumentParser.getArgumentValue(ArgumentType.COLUMN_NAME.getOptionName());
+        final String[] columnNames = argumentParser.getArgumentValues(ArgumentType.COLUMN_NAME.getOptionName());
         final Charset charset = Optional.ofNullable(getFileCharacterSet(fileName))
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Can not found %s file target Charset", fileName)));
 
@@ -33,7 +33,7 @@ public class DirtyCodeMain {
             CSVReader csvReader = new CSVReader(bufferedReader);
             CSVFile csvFile = new CSVFile(csvReader);
 
-            result = getGroupingCountByColumnName(csvFile, columnName);
+            result = getGroupingCountByColumnName(csvFile, columnNames[0]);
         } catch (Exception e) {
             e.printStackTrace();
 

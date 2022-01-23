@@ -45,4 +45,8 @@ public class ProgramArgumentParser {
     public String getArgumentValue(String argumentName) {
         return this.commandLine.getOptionValue(argumentName);
     }
+
+    public String[] getArgumentValues(String argumentName) {
+        return this.commandLine.getOptionValues(argumentName);
+    }
 }
