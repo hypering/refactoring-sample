@@ -3,8 +3,10 @@ package kr.revelope.study.refactoring.files;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class CSVFile {
@@ -41,18 +43,33 @@ public final class CSVFile {
                 .collect(Collectors.toList());
     }
 
-    public List<String> getColumnNameList(String columnName) {
-        if (!isPresentColumnName(columnName)) {
-            return null;
+    public Map<List<String>, Integer> getGroupingCount(String[] columnNames) {
+        if (isNotExistColumnNames(columnNames)) {
+            throw new IllegalArgumentException(String.format("Can not found target columns %s", Arrays.toString(columnNames)));
         }
 
-        int columnIndex = ArrayUtils.indexOf(this.header, columnName);
+        int[] columnIndexes = Arrays.stream(columnNames)
+                .mapToInt(columnName -> ArrayUtils.indexOf(this.header, columnName))
+                .toArray();
+
         return this.body.stream()
-                .map(data -> data[columnIndex])
-                .collect(Collectors.toList());
+                .map(data -> {
+                    List<String> values = new ArrayList<>();
+                    for (int idx : columnIndexes) {
+                        values.add(data[idx]);
+                    }
+
+                    return values;
+                })
+                .collect(Collectors.groupingBy(column -> column, Collectors.summingInt(value -> 1)));
     }
 
-    public boolean isPresentColumnName(String columnName) {
+    public boolean isNotExistColumnNames(String[] columnNames) {
+        return Arrays.stream(columnNames)
+                .anyMatch(columnName -> !isExistColumnName(columnName));
+    }
+
+    public boolean isExistColumnName(String columnName) {
         return Arrays.stream(this.header)
                 .anyMatch(column -> StringUtils.equals(column, columnName));
     }

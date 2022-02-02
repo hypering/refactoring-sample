@@ -16,17 +16,23 @@ TODO : arguments 받는 방식을 바꿔주세요.
 * --file-path {filePath} 또는 -f {filePath}
 * --column-name {columnName} 또는 -c {columnName}
 
----
-
-### 3주차
-
 TODO : charset이 ms949인 것도 들어올 수 있게 하기
 
 ---
 
-### 4주차
+### 3주차
 
 TODO : -c를 여러개 줄 수 있도록 해주세요. (순서중요)
+
+### 4주차
+
+-f file.csv -c column1 -v value1 -c column2 -v value2
+column1 이 숫자 컬럼인 경우 value1 값보다 크고 column2 가 숫자 컬럼인 경우 value2 값보다 큰 데이터에 대하여 그룹 카운트
+
+
+-f file.csv -c column1 -c column2 -v value2
+column2 가 숫자 컬럼인 경우 value2 값보다 큰 데이터에 대하여 그룹 카운트
+
 
 
 ---

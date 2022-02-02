@@ -7,13 +7,16 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 public class CharacterSetDetector {
     private CharacterSetDetector() {
     }
 
-    public static Charset getCharacterSet(InputStream inputStream) throws IOException {
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream)) {
+    public static Charset getCharacterSet(String fileName) throws IOException {
+        try (InputStream inputStream = Optional.ofNullable(CharacterSetDetector.class.getClassLoader().getResourceAsStream(fileName))
+                .orElseThrow(() -> new IllegalArgumentException(String.format("%s file can not found.", fileName)));
+             BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream)) {
             CharsetDetector charsetDetector = new CharsetDetector();
             charsetDetector.setText(bufferedInputStream);
 
