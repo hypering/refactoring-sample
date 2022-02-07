@@ -1,12 +1,10 @@
 package kr.revelope.study.refactoring.files;
 
+import kr.revelope.study.refactoring.model.Column;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class CSVFile {
@@ -43,14 +41,19 @@ public final class CSVFile {
                 .collect(Collectors.toList());
     }
 
-    public Map<List<String>, Integer> getGroupingCount(String[] columnNames) {
+    public Map<List<String>, Integer> getGroupingCount(List<Column> columnNames) {
         if (isNotExistColumnNames(columnNames)) {
-            throw new IllegalArgumentException(String.format("Can not found target columns %s", Arrays.toString(columnNames)));
+            throw new IllegalArgumentException(String.format("Can not found target columns %s", columnNames));
         }
 
-        int[] columnIndexes = Arrays.stream(columnNames)
-                .mapToInt(columnName -> ArrayUtils.indexOf(this.header, columnName))
+        int[] columnIndexes = columnNames.stream()
+                .mapToInt(columnName -> ArrayUtils.indexOf(this.header, columnName.getColumnName()))
                 .toArray();
+
+        Map<String, Integer> check = new HashMap<>();
+        for (Column column : columnNames) {
+            check.put(column.getColumnName(), column.getValue());
+        }
 
         return this.body.stream()
                 .map(data -> {
@@ -61,12 +64,25 @@ public final class CSVFile {
 
                     return values;
                 })
+                .filter(columns -> {
+                    for (int i = 0; i < columns.size(); i++) {
+                        if (columnNames.get(i).getValue() == null) {
+                            continue;
+                        }
+
+                        if (columnNames.get(i).getValue() > Integer.parseInt(columns.get(i))) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                })
                 .collect(Collectors.groupingBy(column -> column, Collectors.summingInt(value -> 1)));
     }
 
-    public boolean isNotExistColumnNames(String[] columnNames) {
-        return Arrays.stream(columnNames)
-                .anyMatch(columnName -> !isExistColumnName(columnName));
+    public boolean isNotExistColumnNames(List<Column> columnNames) {
+        return columnNames.stream()
+                .anyMatch(columnName -> !isExistColumnName(columnName.getColumnName()));
     }
 
     public boolean isExistColumnName(String columnName) {
