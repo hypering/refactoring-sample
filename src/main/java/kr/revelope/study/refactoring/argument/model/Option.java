@@ -1,13 +1,13 @@
-package kr.revelope.study.refactoring.parser.model;
+package kr.revelope.study.refactoring.argument.model;
 
-import kr.revelope.study.refactoring.parser.types.ArgumentType;
+import kr.revelope.study.refactoring.argument.types.ArgumentType;
 
-public class Option {
+public final class Option {
     private final String optionName; // 이름
     private final String longOptionName; // 긴 이름
     private final String description; // 설명
     private final boolean hasMany; // 원소를 많이 가지고 있는지 여부
-    private final boolean hasArg; // 원소를 가져야 하는지 여
+    private final boolean hasArg; // 원소를 가져야 하는지 여부
     private final ArgumentType parentArgumentType; // 부모 ArgumentType
 
     public Option(String optionName, String longOptionName, String description, boolean hasMany, boolean hasArg, ArgumentType parentArgumentType) {
@@ -48,7 +48,8 @@ public class Option {
     }
 
     public static final class Builder {
-        private String optionName;
+        private final String optionName;
+
         private String longOptionName;
         private String description;
         private boolean hasMany;

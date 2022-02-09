@@ -1,4 +1,4 @@
-package kr.revelope.study.refactoring.parser.model;
+package kr.revelope.study.refactoring.argument.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +10,12 @@ public class Options {
     public Options() {
     }
 
-    public void addOption(Option opt) {
-        if (opt.hasLongOptionName()) {
-            this.longOptions.put(opt.getLongOptionName(), opt);
+    public void addOption(Option option) {
+        if (option.hasLongOptionName()) {
+            this.longOptions.put(option.getLongOptionName(), option);
         }
 
-        this.shortOptions.put(opt.getOptionName(), opt);
+        this.shortOptions.put(option.getOptionName(), option);
     }
 
     public Option getOption(String option) {

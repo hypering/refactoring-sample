@@ -1,14 +1,16 @@
-package kr.revelope.study.refactoring.parser;
+package kr.revelope.study.refactoring.argument;
 
-import kr.revelope.study.refactoring.parser.model.Argument;
-import kr.revelope.study.refactoring.parser.model.Option;
-import kr.revelope.study.refactoring.parser.model.Options;
-import kr.revelope.study.refactoring.parser.types.ArgumentType;
-import kr.revelope.study.refactoring.parser.util.Parser;
+import kr.revelope.study.refactoring.argument.model.Argument;
+import kr.revelope.study.refactoring.argument.model.Option;
+import kr.revelope.study.refactoring.argument.model.Options;
+import kr.revelope.study.refactoring.argument.parser.Parser;
+import kr.revelope.study.refactoring.argument.types.ArgumentType;
+
+import java.util.List;
 
 public class ProgramArgumentParser {
     private static final Options options = new Options();
-    private final Argument args;
+    private final Argument argument;
 
     static {
         for (ArgumentType argumentType : ArgumentType.values()) {
@@ -29,19 +31,16 @@ public class ProgramArgumentParser {
     }
 
     public ProgramArgumentParser(String[] args) {
-        this.args = makeCommandLine(args);
+        Parser parser = new Parser(options, args);
+        this.argument = parser.parse();
     }
 
-    private Argument makeCommandLine(String[] args) {
-        return Parser.parse(options, args);
-    }
-
-    public String getArgumentValue(ArgumentType argumentType) throws IllegalAccessException {
+    public <R> R getArgumentValue(ArgumentType argumentType) throws IllegalAccessException {
         if (argumentType.isHasMany()) {
             throw new IllegalAccessException("This option has many arguments");
         }
 
-        return this.args.getStringArgumentValues(argumentType.getOptionName()).get(0);
+        return ((List<R>) this.argument.getArgumentValues(argumentType)).get(0);
     }
 
     public <R> R getArgumentValues(ArgumentType argumentType) throws IllegalAccessException {
@@ -49,10 +48,6 @@ public class ProgramArgumentParser {
             throw new IllegalAccessException("This option has many arguments");
         }
 
-        if (argumentType == ArgumentType.COLUMN_NAME) {
-            return (R) this.args.getColumnArgumentValues(argumentType.getOptionName());
-        } else {
-            return (R) this.args.getStringArgumentValues(argumentType.getOptionName());
-        }
+        return this.argument.getArgumentValues(argumentType);
     }
 }

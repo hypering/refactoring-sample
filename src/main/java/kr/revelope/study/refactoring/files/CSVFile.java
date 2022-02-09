@@ -1,6 +1,6 @@
 package kr.revelope.study.refactoring.files;
 
-import kr.revelope.study.refactoring.model.Column;
+import kr.revelope.study.refactoring.argument.model.Column;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -67,6 +67,11 @@ public final class CSVFile {
                 .filter(columns -> {
                     for (int i = 0; i < columns.size(); i++) {
                         if (columnNames.get(i).getValue() == null) {
+                            continue;
+                        }
+
+                        // TODO : 일단은 숫자가 아닌 경우 처리안하도록 구성만 해놓은 상태
+                        if (!StringUtils.isNumeric(columns.get(i))) {
                             continue;
                         }
 

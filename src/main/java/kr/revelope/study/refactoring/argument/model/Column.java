@@ -1,4 +1,4 @@
-package kr.revelope.study.refactoring.model;
+package kr.revelope.study.refactoring.argument.model;
 
 public class Column {
     private final String columnName;

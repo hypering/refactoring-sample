@@ -1,4 +1,4 @@
-package kr.revelope.study.refactoring.parser.types;
+package kr.revelope.study.refactoring.argument.types;
 
 import org.apache.commons.lang3.StringUtils;
 
